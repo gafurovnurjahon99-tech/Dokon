@@ -13,6 +13,19 @@
         <button onclick="openAdmin()" class="admin-btn-icon">⚙️</button>
     </div>
 
+    <div id="status-bar" class="status-bar" style="display:none; background: #e3f2fd; padding: 10px 15px; margin: 10px; border-radius: 10px; justify-content: space-between; align-items: center; font-size: 14px;">
+        <span>Buyurtma: <b id="order-status-text">Kutilmoqda</b></span>
+        <div class="status-dots" style="display: flex; gap: 5px;">
+            <div class="dot" id="dot-1" style="width: 8px; height: 8px; background: #ccc; border-radius: 50%;"></div>
+            <div class="dot" id="dot-2" style="width: 8px; height: 8px; background: #ccc; border-radius: 50%;"></div>
+            <div class="dot" id="dot-3" style="width: 8px; height: 8px; background: #ccc; border-radius: 50%;"></div>
+        </div>
+    </div>
+
+    <div class="search-box" style="padding: 10px;">
+        <input type="text" id="search-input" placeholder="Mahsulot qidirish..." oninput="searchProducts(this.value)" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box;">
+    </div>
+
     <div class="categories" id="category-list"></div>
 
     <div class="container">
@@ -26,21 +39,31 @@
                 <button class="close-x" onclick="closeAdmin()">&times;</button>
             </div>
             <div class="admin-tabs">
-                <button onclick="showTab('p-tab')" class="tab-link active">Mahsulotlar</button>
-                <button onclick="showTab('c-tab')" class="tab-link">Toifalar</button>
+                <button onclick="showTab('p-tab', this)" class="tab-link active">Mahsulotlar</button>
+                <button onclick="showTab('c-tab', this)" class="tab-link">Toifalar</button>
+                <button onclick="showTab('o-tab', this)" class="tab-link">Buyurtmalar</button>
+                <button onclick="showTab('s-tab', this)" class="tab-link">Statistika</button>
             </div>
             
             <div id="p-tab" class="tab-body">
                 <div class="input-group">
                     <input type="text" id="p-name" placeholder="Mahsulot nomi">
-                    <input type="number" id="p-price" placeholder="Narxi (so'm)">
+                    
+                    <div style="display: flex; gap: 5px; width: 100%;">
+                        <input type="number" id="p-price" placeholder="Asosiy narx" style="width: 50%;">
+                        <input type="number" id="p-sale-price" placeholder="Chegirma narxi" style="width: 50%;">
+                    </div>
+                    
                     <select id="p-cat-select"></select>
+                    
+                    <textarea id="p-desc" placeholder="Mahsulot tavsifi (ixtiyoriy)..." style="width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; padding: 10px; font-family: inherit; resize: none;"></textarea>
+
                     <label class="file-label">
                         🖼 Rasm/GIF tanlash
                         <input type="file" id="p-image-input" accept="image/*" style="display:none;">
                     </label>
                     <div id="image-preview" class="preview-box"></div>
-                    <button class="add-btn-main" onclick="addNewProduct()">Onlayn saqlash</button>
+                    <button id="main-admin-btn" class="add-btn-main" onclick="addNewProduct()">Onlayn saqlash</button>
                 </div>
                 <div id="admin-prod-list" class="scroll-list"></div>
             </div>
@@ -52,6 +75,35 @@
                 </div>
                 <div id="admin-cat-list" class="scroll-list"></div>
             </div>
+
+            <div id="o-tab" class="tab-body" style="display:none;">
+                <div id="admin-orders-list" class="scroll-list">
+                    <p style="text-align: center; color: #666;">Buyurtmalar yuklanmoqda...</p>
+                </div>
+            </div>
+
+            <div id="s-tab" class="tab-body" style="display:none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px;">
+                    <div style="background: #f4f4f4; padding: 15px; border-radius: 10px; text-align: center;">
+                        Jami tushum: <h3 id="total-revenue" style="color: #0088cc; margin: 5px 0;">0 so'm</h3>
+                    </div>
+                    <div style="background: #f4f4f4; padding: 15px; border-radius: 10px; text-align: center;">
+                        Buyurtmalar: <h3 id="total-orders-count" style="color: #0088cc; margin: 5px 0;">0</h3>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="quick-view-modal" class="modal">
+        <div class="modal-content quick-box" style="text-align: center; border-radius: 20px;">
+            <button class="close-x" onclick="closeQuickView()">&times;</button>
+            <img id="qv-img" src="" style="width: 100%; max-height: 250px; object-fit: contain; border-radius: 15px; margin-bottom: 15px;">
+            <h2 id="qv-name" style="margin-bottom: 5px;"></h2>
+            <p id="qv-price" style="color: #0088cc; font-weight: bold; font-size: 1.2em; margin-bottom: 5px;"></p>
+            <p id="qv-desc" style="color: #666; font-size: 0.9em; margin-bottom: 15px;"></p>
+            <button id="qv-add-btn" class="add-btn-main" style="width: 100%; border-radius: 10px;">Savatga qo'shish</button>
         </div>
     </div>
 
