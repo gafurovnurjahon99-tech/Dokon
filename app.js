@@ -113,7 +113,6 @@ function checkout() {
             const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 999;
             const comment = document.getElementById('order-comment').value || "Izoh yo'q";
             
-            // Firebase-ga saqlash
             const orderData = {
                 userId, items: cart, status: "Kutilmoqda", time: Date.now(), comment
             };
@@ -134,6 +133,7 @@ function sendOrderToTelegram(order) {
     }
     message += `━━━━━━━━━━━━━━━━━━\n💰 **JAMI: ${total.toLocaleString()} so'm**\n✍️ **Izoh:** ${order.comment}\n`;
     
+    // 1. ADMINGA XABAR
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,6 +144,19 @@ function sendOrderToTelegram(order) {
             reply_markup: {
                 inline_keyboard: [[{ text: "📞 Bog'lanish", url: `tg://user?id=${order.userId}` }]]
             }
+        })
+    });
+
+    // 2. MIJOZGA XABAR (Yangi qo'shilgan qism)
+    const customerMsg = `✅ **Buyurtmangiz qabul qilindi!**\n\nSizning buyurtmangiz muvaffaqiyatli ro'yxatga olindi. Tez orada operatorimiz siz bilan bog'lanadi.\n\n💰 Jami: ${total.toLocaleString()} so'm\n🆔 Buyurtma ID: #${order.time.toString().slice(-6)}`;
+    
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: order.userId,
+            text: customerMsg,
+            parse_mode: "Markdown"
         })
     }).then(() => {
         tg.showAlert("Buyurtmangiz yuborildi!");
@@ -260,7 +273,7 @@ function updateStats() {
     });
 }
 
-// --- YORDAMCHI FUNKSIYALAR (Sizning kodingiz saqlandi) ---
+// --- YORDAMCHI FUNKSIYALAR ---
 function changeQty(key, delta) {
     let p = products.find(x => x.fbKey === key);
     if(!cart[key]) cart[key] = { name: p.name, price: p.price, qty: 0 };
