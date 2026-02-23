@@ -5,68 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
-    <title>Tg Dokon Online | Super AI</title>
+    <title>Premium Market | TG Bot</title>
 </head>
 <body>
-    <div id="usercard" class="usercard">
-        <span id="username">Yuklanmoqda...</span>
-        <button onclick="openAdmin()" class="admin-btn-icon">⚙️</button>
-    </div>
-
-    <div id="status-bar" class="status-bar" style="display:none; background: #e3f2fd; padding: 10px 15px; margin: 10px; border-radius: 10px; justify-content: space-between; align-items: center; font-size: 14px;">
-        <span>Buyurtma: <b id="order-status-text">Kutilmoqda</b></span>
-        <div class="status-dots" style="display: flex; gap: 5px;">
-            <div class="dot" id="dot-1" style="width: 8px; height: 8px; background: #ccc; border-radius: 50%;"></div>
-            <div class="dot" id="dot-2" style="width: 8px; height: 8px; background: #ccc; border-radius: 50%;"></div>
-            <div class="dot" id="dot-3" style="width: 8px; height: 8px; background: #ccc; border-radius: 50%;"></div>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 id="username">Yuklanmoqda...</h2>
+                <p id="current-date">Xush kelibsiz!</p>
+            </div>
+            <button onclick="openAdmin()" class="admin-btn-icon" style="background:none; border:none; font-size: 24px;">⚙️</button>
         </div>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Mahsulot qidirish..." oninput="searchProducts(this.value)">
     </div>
 
-    <div class="search-box" style="padding: 10px;">
-        <input type="text" id="search-input" placeholder="Mahsulot qidirish..." oninput="searchProducts(this.value)" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box;">
-    </div>
-
-    <div class="categories" id="category-list"></div>
+    <div class="category-scroll" id="category-list"></div>
 
     <div class="container">
-        <div class="inner" id="product-grid"></div>
+        <div class="product-grid" id="product-grid"></div>
+    </div>
+
+    <div class="history-section" style="padding: 15px;">
+        <h3 style="color: #1b4d3e;">📜 Buyurtmalar tarixi</h3>
+        <div id="order-history-list"></div>
+    </div>
+
+    <div id="cart-widget" class="cart-float-btn" onclick="toggleCart()">
+        <span>🛒 <span id="cart-count">0</span> ta mahsulot</span>
+        <span id="cart-total-info">0 so'm</span>
     </div>
 
     <div id="admin-modal" class="modal">
         <div class="modal-content admin-box">
             <div class="admin-header">
-                <h3 style="margin:0;">Boshqaruv Paneli</h3>
+                <h3>Boshqaruv Paneli</h3>
                 <button class="close-x" onclick="closeAdmin()">&times;</button>
             </div>
-            <div class="admin-tabs" style="margin-top:15px;">
+            <div class="admin-tabs">
                 <button onclick="showTab('p-tab', this)" class="tab-link active">Mahsulotlar</button>
-                <button onclick="showTab('c-tab', this)" class="tab-link">Toifalar</button>
                 <button onclick="showTab('o-tab', this)" class="tab-link">Buyurtmalar</button>
-                <button onclick="showTab('s-tab', this)" class="tab-link">Statistika & AI</button>
+                <button onclick="showTab('s-tab', this)" class="tab-link">AI & Stat</button>
             </div>
             
             <div id="p-tab" class="tab-body">
                 <div class="input-group">
                     <input type="text" id="p-name" placeholder="Mahsulot nomi">
-                    <div style="display: flex; gap: 5px; width: 100%;">
-                        <input type="number" id="p-price" placeholder="Narxi" style="width: 100%;">
-                    </div>
-                    <input type="text" id="p-variants" placeholder="Variantlar (S:100, M:120)">
+                    <input type="number" id="p-price" placeholder="Narxi">
+                    <input type="number" id="p-stock" placeholder="Sklad miqdori (soni)"> <input type="text" id="p-variants" placeholder="Variantlar (S:100, M:120)">
                     <select id="p-cat-select"></select>
-                    <textarea id="p-desc" placeholder="Tavsif..." style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px; resize: none;"></textarea>
-                    <label class="file-label">🖼 Rasm tanlash <input type="file" id="p-image-input" accept="image/*" style="display:none;"></label>
+                    <textarea id="p-desc" placeholder="Tavsif..."></textarea>
+                    <label class="file-label">🖼 Rasm yuklash <input type="file" id="p-image-input" accept="image/*" style="display:none;"></label>
                     <div id="image-preview" class="preview-box"></div>
                     <button id="main-admin-btn" class="add-btn-main" onclick="addNewProduct()">Saqlash</button>
                 </div>
                 <div id="admin-prod-list" class="scroll-list"></div>
-            </div>
-
-            <div id="c-tab" class="tab-body" style="display:none;">
-                <div class="input-group">
-                    <input type="text" id="new-cat-input" placeholder="Yangi toifa">
-                    <button class="add-btn-main" onclick="addNewCategory()">Qo'shish</button>
-                </div>
-                <div id="admin-cat-list" class="scroll-list"></div>
             </div>
 
             <div id="o-tab" class="tab-body" style="display:none;">
@@ -74,62 +69,52 @@
             </div>
 
             <div id="s-tab" class="tab-body" style="display:none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div style="background: #f4f4f4; padding: 15px; border-radius: 12px; text-align: center;">
-                        Jami tushum: <h3 id="total-revenue" style="color: #007aff; margin: 5px 0;">0 so'm</h3>
-                    </div>
-                    <div style="background: #f4f4f4; padding: 15px; border-radius: 12px; text-align: center;">
-                        Buyurtmalar: <h3 id="total-orders-count" style="color: #007aff; margin: 5px 0;">0</h3>
-                    </div>
+                <div id="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                    <div class="stat-card">Jami tushum: <h3 id="total-revenue">0 so'm</h3></div>
+                    <div class="stat-card">Buyurtmalar: <h3 id="total-orders-count">0</h3></div>
                 </div>
-
-                <div style="background: #1c1c1e; color: #00d4ff; padding: 20px; border-radius: 20px; font-family: 'Courier New', monospace; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
-                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                        <span style="width: 8px; height: 8px; background: #ff5f56; border-radius: 50%;"></span>
-                        <span style="width: 8px; height: 8px; background: #ffbd2e; border-radius: 50%;"></span>
-                        <span style="width: 8px; height: 8px; background: #27c93f; border-radius: 50%;"></span>
-                    </div>
-                    <h4 style="margin: 0; font-size: 14px; color: #fff;">Super AI Agent 🧠</h4>
-                    <p id="ai-status" style="font-size: 11px; color: #00ff88; margin: 10px 0;">> Tizim tayyor. Buyruq kutilyapti...</p>
+                <div class="ai-box">
+                    <h4>Super AI Agent 🧠</h4>
+                    <p id="ai-status">> Tizim tayyor...</p>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="ai-prompt" placeholder="Narxni 10% tushir..." style="background: #2c2c2e; border: 1px solid #3a3a3c; color: #fff; margin:0; flex:1;">
-                        <button onclick="askAI()" style="background: #007aff; color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold;">OK</button>
+                        <input type="text" id="ai-prompt" placeholder="Buyruq yuboring...">
+                        <button onclick="askAI()">OK</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="quick-view-modal" class="modal">
-        <div class="modal-content quick-box">
-            <button class="close-x" onclick="closeQuickView()">&times;</button>
-            <img id="qv-img" src="" style="width: 100%; max-height: 250px; object-fit: contain; border-radius: 15px;">
-            <h2 id="qv-name" style="margin: 10px 0 5px;"></h2>
-            <p id="qv-price" style="color: #007aff; font-weight: bold; font-size: 1.2em;"></p>
-            <p id="qv-desc" style="color: #666; font-size: 0.9em; margin-bottom: 15px;"></p>
-            <button id="qv-add-btn" class="add-btn-main">Savatga qo'shish</button>
-        </div>
-    </div>
-
-    <div id="cart-widget" class="cart-widget" onclick="toggleCart()">
-        <span>🛒 <span id="cart-count">0</span></span>
-        <span id="cart-total-info">0 so'm</span>
-    </div>
-
     <div id="cart-modal" class="modal">
         <div class="modal-content cart-box">
             <h3>Savatcha</h3>
             <ul id="cart-items" class="cart-list-ui"></ul>
+            
+            <div class="promo-section" style="display: flex; gap: 5px; margin: 10px 0;">
+                <input type="text" id="promo-input" placeholder="Promokod" style="flex:1; padding: 8px; border-radius: 8px; border:1px solid #ddd;">
+                <button onclick="applyPromo()" style="background: #2ecc71; color: white; border: none; padding: 0 15px; border-radius: 8px;">OK</button>
+            </div>
+
             <div class="total-summary">Jami: <span id="total-price-display">0</span> so'm</div>
-            <textarea id="order-comment" placeholder="Manzil va telefon..." style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px; resize: none;" rows="3"></textarea>
-            <button class="checkout-btn" onclick="checkout()" style="margin-top: 10px;">Tasdiqlash</button>
+            <textarea id="order-comment" placeholder="Manzil va telefon..."></textarea>
+            <button class="checkout-btn" onclick="checkout()">Buyurtmani tasdiqlash</button>
             <button class="close-btn-text" onclick="toggleCart()">Yopish</button>
+        </div>
+    </div>
+
+    <div id="quick-view-modal" class="modal">
+        <div class="modal-content quick-box">
+            <button class="close-x" onclick="closeQuickView()">&times;</button>
+            <img id="qv-img" src="">
+            <h2 id="qv-name"></h2>
+            <p id="qv-price"></p>
+            <p id="qv-desc"></p>
+            <button id="qv-add-btn" class="add-btn-main">Savatga qo'shish</button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
-    
     <script src="app.js"></script>
 </body>
 </html>
