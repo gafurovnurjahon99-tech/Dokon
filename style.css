@@ -33,7 +33,7 @@ body {
 #username { font-weight: 800; font-size: 1.1rem; }
 .admin-btn-icon { background: #F2F2F7; border: none; padding: 10px; border-radius: 12px; font-size: 1.2rem; cursor: pointer; }
 
-/* Status Bar (Mijoz uchun) */
+/* Status Bar */
 .status-bar {
     animation: fadeIn 0.5s ease-in;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -47,11 +47,39 @@ body {
 .cat-btn.active { background: var(--blue); color: white; }
 
 /* Product Grid */
-.inner { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; } /* 3 tadan 2 taga o'zgartirildi, rasm va yozuvlar yaxshi ko'rinishi uchun */
-.item { background: white; padding: 12px; border-radius: 18px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; }
+.inner { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.item { background: white; padding: 12px; border-radius: 18px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); position: relative; display: flex; flex-direction: column; }
 .img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 14px; margin-bottom: 8px; cursor: pointer; }
 .name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.price { font-size: 0.95rem; color: var(--blue); font-weight: 800; margin-bottom: 8px; }
+
+/* --- YANGI: Variantlar dizayni --- */
+.variants-list { 
+    display: flex; 
+    gap: 4px; 
+    justify-content: center; 
+    margin: 5px 0 10px 0; 
+    flex-wrap: wrap;
+    min-height: 25px;
+}
+.var-btn { 
+    background: #F2F2F7; 
+    border: 1px solid #E5E5EA; 
+    padding: 4px 8px; 
+    border-radius: 8px; 
+    font-size: 10px; 
+    font-weight: 700; 
+    color: var(--dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.var-btn.active { 
+    background: var(--blue); 
+    color: white; 
+    border-color: var(--blue);
+    transform: scale(1.05);
+}
+
+.price { font-size: 0.95rem; color: var(--blue); font-weight: 800; margin-bottom: 8px; margin-top: auto; }
 
 /* Stepper */
 .stepper { display: flex; justify-content: space-between; align-items: center; background: #F2F2F7; border-radius: 10px; padding: 3px; }
@@ -64,7 +92,6 @@ body {
 
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-/* Quick View maxsus */
 .quick-box { bottom: auto; top: 50%; transform: translateY(-50%); width: 90%; left: 5%; border-radius: 25px; }
 
 /* Admin UI */
@@ -73,9 +100,7 @@ body {
 .tab-link.active { background: white; color: var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
 .scroll-list { max-height: 300px; overflow-y: auto; margin-top: 15px; }
-
-/* Statistika kartalari */
-.stat-card { background: #F9F9FB; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #EDEDF2; }
+.admin-item { background:#f9f9fb; padding:12px; border-radius:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border: 1px solid #ededf2; }
 
 /* Inputlar */
 input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1.5px solid #EDEDF2; border-radius: 12px; box-sizing: border-box; font-size: 1rem; font-family: inherit; outline: none; }
