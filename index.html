@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
     <title>Tg Dokon Online</title>
 </head>
@@ -28,24 +29,26 @@
                 <button onclick="showTab('p-tab')" class="tab-link active">Mahsulotlar</button>
                 <button onclick="showTab('c-tab')" class="tab-link">Toifalar</button>
             </div>
+            
             <div id="p-tab" class="tab-body">
                 <div class="input-group">
                     <input type="text" id="p-name" placeholder="Mahsulot nomi">
                     <input type="number" id="p-price" placeholder="Narxi (so'm)">
                     <select id="p-cat-select"></select>
                     <label class="file-label">
-                        🖼 Galereyadan rasm/GIF
+                        🖼 Rasm/GIF tanlash
                         <input type="file" id="p-image-input" accept="image/*" style="display:none;">
                     </label>
                     <div id="image-preview" class="preview-box"></div>
-                    <button class="add-btn-main" onclick="addNewProduct()">Onlayn qo'shish</button>
+                    <button class="add-btn-main" onclick="addNewProduct()">Onlayn saqlash</button>
                 </div>
                 <div id="admin-prod-list" class="scroll-list"></div>
             </div>
+
             <div id="c-tab" class="tab-body" style="display:none;">
                 <div class="input-group">
-                    <input type="text" id="new-cat-input" placeholder="Yangi toifa">
-                    <button class="add-btn-main" onclick="addNewCategory()">Saqlash</button>
+                    <input type="text" id="new-cat-input" placeholder="Yangi toifa nomi">
+                    <button class="add-btn-main" onclick="addNewCategory()">Qo'shish</button>
                 </div>
                 <div id="admin-cat-list" class="scroll-list"></div>
             </div>
@@ -62,13 +65,19 @@
             <h3>Savatcha</h3>
             <ul id="cart-items" class="cart-list-ui"></ul>
             <div class="total-summary">Jami: <span id="total-price-display">0</span> so'm</div>
-            <button class="checkout-btn" onclick="checkout()">Sotib olish</button>
+
+            <textarea id="order-comment" placeholder="Buyurtma uchun izoh (manzil yoki telefon)..." 
+                style="width: 100%; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd; padding: 10px; font-family: inherit; resize: none;" 
+                rows="3"></textarea>
+            
+            <button class="checkout-btn" onclick="checkout()" style="margin-top: 10px;">Sotib olish</button>
             <button class="close-btn-text" onclick="toggleCart()">Yopish</button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+    
     <script src="app.js"></script>
 </body>
 </html>
