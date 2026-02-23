@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
 :root {
-    --primary: #1b4d3e; /* To'q yashil */
+    --primary: #1b4d3e; /* To'q yashil Emerald */
     --accent: #2ecc71;  /* Yorqin yashil */
     --bg: #f4f7f6;
     --white: #ffffff;
@@ -19,30 +19,22 @@ body {
     padding-bottom: 120px;
     user-select: none;
     color: var(--dark);
+    overflow-x: hidden;
 }
 
-/* Header dizayni (Premium) */
+/* --- HEADER --- */
 header {
     background: var(--primary);
     color: white;
-    padding: 25px 20px 45px;
+    padding: 25px 20px 50px;
     border-radius: 0 0 30px 30px;
     box-shadow: var(--shadow);
 }
 
-.usercard {
-    background: transparent;
-    padding: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-}
+#username { margin: 0; font-weight: 800; font-size: 1.3rem; }
+#current-date { margin: 5px 0 0; opacity: 0.8; font-size: 0.85rem; }
 
-#username { font-weight: 800; font-size: 1.3rem; }
-.admin-btn-icon { background: rgba(255,255,255,0.15); border: none; padding: 10px; border-radius: 12px; font-size: 1.2rem; cursor: pointer; color: white; }
-
-/* Qidiruv paneli (Header ustiga chiqishi) */
+/* --- QIDIRUV --- */
 .search-box {
     margin: -25px 20px 0;
     position: relative;
@@ -58,112 +50,271 @@ header {
     box-sizing: border-box;
     font-size: 1rem;
     outline: none;
-}
-
-/* Kategoriyalar */
-.categories { 
-    display: flex; 
-    overflow-x: auto; 
-    gap: 10px; 
-    padding: 20px 15px; 
-    scrollbar-width: none; 
-}
-.cat-btn { 
-    background: white; 
-    border: none; 
-    padding: 10px 22px; 
-    border-radius: 20px; 
-    font-size: 0.9rem; 
-    font-weight: 600; 
-    color: var(--primary); 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     transition: 0.3s;
 }
+
+#search-input:focus { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+
+/* --- KATEGORIYALAR --- */
+.category-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 20px 15px;
+    scrollbar-width: none;
+}
+.category-scroll::-webkit-scrollbar { display: none; }
+
+.cat-btn {
+    background: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    white-space: nowrap;
+    transition: 0.3s;
+}
+
 .cat-btn.active { background: var(--primary); color: white; }
 
-/* Mahsulotlar Grid */
+/* --- MAHSULOTLAR GRID --- */
 .container { padding: 0 15px; }
 .inner { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-.item { 
-    background: white; 
-    padding: 12px; 
-    border-radius: 22px; 
-    text-align: center; 
-    box-shadow: var(--shadow); 
-    position: relative; 
-    display: flex; 
-    flex-direction: column; 
+
+.item {
+    background: white;
+    padding: 12px;
+    border-radius: 22px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    display: flex;
+    flex-direction: column;
     border: 1px solid rgba(27, 77, 62, 0.05);
+    transition: 0.3s;
 }
 
-/* Sklad tugagan bo'lsa xira qilish */
 .item.disabled { filter: grayscale(1); opacity: 0.6; pointer-events: none; }
 
-.img { 
-    width: 100%; 
-    aspect-ratio: 1; 
-    object-fit: cover; 
-    border-radius: 18px; 
-    margin-bottom: 10px; 
+.img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
 
-.name { 
-    font-size: 0.9rem; 
-    font-weight: 700; 
-    margin-bottom: 6px; 
-    color: var(--dark); 
+.sale-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--red);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    z-index: 2;
 }
 
-.price { 
-    font-size: 1rem; 
-    color: var(--primary); 
-    font-weight: 800; 
-    margin-bottom: 10px; 
-}
+.name { font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--dark); height: 34px; overflow: hidden; }
+.price { font-size: 1rem; color: var(--primary); font-weight: 800; margin-bottom: 8px; }
 
-/* Variantlar tugmasi */
-.var-btn { 
-    background: #f1f5f3; 
-    border: 1px solid #e1e8e5; 
+/* --- VARIANTLAR --- */
+.variants-list { display: flex; gap: 4px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+.var-btn {
+    background: #f1f5f3;
+    border: 1px solid #e1e8e5;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
     color: var(--primary);
+    cursor: pointer;
 }
-.var-btn.active { 
-    background: var(--primary); 
-    color: white; 
-}
+.var-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-/* Stepper (Savatga qo'shish) */
-.stepper { 
-    background: #f1f5f3; 
-    border-radius: 12px; 
-    padding: 4px; 
+/* --- STEPPER --- */
+.stepper {
+    background: #f1f5f3;
+    border-radius: 12px;
+    padding: 4px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
 }
-.step-btn { 
-    background: var(--primary); 
-    color: white; 
+.step-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
     border-radius: 10px;
     width: 32px;
     height: 32px;
+    font-weight: bold;
+    cursor: pointer;
 }
-.qty { color: var(--primary); font-weight: 800; }
+.qty { color: var(--primary); font-weight: 800; font-size: 0.9rem; }
+.stock-badge { font-size: 10px; color: var(--gray); margin-bottom: 5px; }
 
-/* Cart Widget (Pastki suzuvchi tugma) */
-.cart-widget { 
-    position: fixed; 
-    bottom: 25px; 
-    left: 20px; 
-    right: 20px; 
-    background: var(--primary); 
-    border-radius: 22px; 
-    box-shadow: 0 12px 35px rgba(27, 77, 62, 0.4); 
-    padding: 20px;
+/* --- MODALLAR --- */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
 }
 
-/* Buyurtmalar tarixi dizayni */
-.history-section { margin-top: 30px; padding: 0 15px; }
+.modal-content {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    border-radius: 30px 30px 0 0;
+    padding: 25px;
+    box-sizing: border-box;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.close-x {
+    float: right;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--gray);
+    cursor: pointer;
+}
+
+/* --- ADMIN UI --- */
+.admin-tabs {
+    display: flex;
+    background: #e1e8e5;
+    padding: 5px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    gap: 5px;
+}
+.tab-link {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    background: transparent;
+    color: var(--gray);
+}
+.tab-link.active { background: white; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+.input-group input, .input-group select, .input-group textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1.5px solid #EDEDF2;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.add-btn-main {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.scroll-list { max-height: 300px; overflow-y: auto; }
+.admin-item {
+    background: #f9f9fb;
+    padding: 12px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #eee;
+}
+
+/* --- SAVATCHA --- */
+.cart-widget {
+    position: fixed;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    background: var(--primary);
+    color: white;
+    padding: 18px 25px;
+    border-radius: 22px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 12px 35px rgba(27, 77, 62, 0.4);
+    z-index: 999;
+}
+
+.cart-list-ui { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+.cart-list-ui li {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.promo-section {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    background: #f1f5f3;
+    padding: 8px;
+    border-radius: 12px;
+}
+.promo-section input { border: none; background: transparent; flex: 1; padding: 5px 10px; outline: none; }
+.promo-section button { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+
+.total-summary {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.checkout-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 8px 20px rgba(27, 77, 62, 0.2);
+}
+
+.close-btn-text {
+    background: none;
+    border: none;
+    color: var(--gray);
+    width: 100%;
+    margin-top: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- TARIX --- */
 .history-card {
     background: white;
     padding: 15px;
@@ -177,30 +328,41 @@ header {
     color: var(--primary);
     padding: 4px 10px;
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
+    text-transform: uppercase;
 }
 
-/* Promokod bo'limi (Savat ichida) */
-.promo-section {
-    display: flex;
-    gap: 8px;
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 15px;
-    margin-bottom: 15px;
-}
-.promo-section input { margin: 0; flex: 1; border-radius: 10px; padding: 10px; }
-.promo-section button { 
-    background: var(--accent); 
-    color: white; 
-    border: none; 
-    border-radius: 10px; 
-    padding: 0 15px; 
-    font-weight: 700;
+/* --- QUICK VIEW --- */
+.quick-box {
+    bottom: 50%;
+    transform: translateY(50%);
+    width: 90%;
+    left: 5%;
+    border-radius: 25px;
 }
 
-/* Admin UI Yangilanishi */
-.admin-tabs { background: #e1e8e5; }
-.tab-link.active { color: var(--primary); }
-.add-btn-main { background: var(--primary); }
+/* --- FILE UPLOAD --- */
+.file-label {
+    display: block;
+    background: #f1f5f3;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px dashed var(--primary);
+    color: var(--primary);
+    margin-bottom: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.preview-box {
+    width: 100%;
+    height: 150px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background-color: #f0f0f0;
+    display: none;
+}
