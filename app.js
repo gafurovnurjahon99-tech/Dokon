@@ -3,7 +3,8 @@ let selectedImageBase64 = "";
 let products = [];
 let categories = [];
 let cart = {};
-let editingFbKey = null; // YANGI: Tahrirlash uchun
+let editingFbKey = null; 
+let selectedVariants = {}; // Yangi: Tanlangan variantlarni saqlash uchun
 
 // 2. SOZLAMALAR
 const firebaseConfig = {
@@ -48,7 +49,6 @@ function init() {
         userEl.innerText = "Nurjahon";
     }
 
-    // YANGI: Statistika va Statuslarni yuklash
     updateStats();
     initOrdersAdmin();
     checkOrderStatus();
@@ -61,7 +61,7 @@ function searchProducts(query) {
     renderProducts('all', filtered);
 }
 
-// 5. MAHSULOTLARNI CHIQARISH (Chegirma va Quick View bilan)
+// 5. MAHSULOTLARNI CHIQARISH (Variantlar va Dinamik narx bilan)
 function renderProducts(filter = 'all', list = null) {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
@@ -71,20 +71,32 @@ function renderProducts(filter = 'all', list = null) {
 
     displayList.forEach(p => {
         if(filter === 'all' || p.cat === filter) {
-            const saleBadge = p.oldPrice ? `<span style="position:absolute; background:red; color:white; padding:2px 5px; border-radius:5px; font-size:10px; top:5px; left:5px;">Aksiya!</span>` : "";
-            const priceHtml = p.oldPrice 
-                ? `<p class="price" style="color:red;">${p.price.toLocaleString()} so'm <small style="text-decoration:line-through; color:gray; font-size:0.7em;">${p.oldPrice.toLocaleString()}</small></p>`
-                : `<p class="price">${p.price.toLocaleString()} so'm</p>`;
+            // Tanlangan variantni aniqlash
+            const activeVar = selectedVariants[p.fbKey] || (p.variants ? p.variants[0] : null);
+            let currentPrice = activeVar ? activeVar.vPrice : p.price;
+
+            let variantsHtml = "";
+            if(p.variants && p.variants.length > 0) {
+                variantsHtml = `<div class="variants-list">`;
+                p.variants.forEach(v => {
+                    const isActive = activeVar && activeVar.vName === v.vName ? 'active' : '';
+                    variantsHtml += `<button class="var-btn ${isActive}" onclick="selectVariant('${p.fbKey}', '${v.vName}', ${v.vPrice})">${v.vName}</button>`;
+                });
+                variantsHtml += `</div>`;
+            }
+
+            const saleBadge = p.oldPrice ? `<span style="position:absolute; background:red; color:white; padding:2px 5px; border-radius:5px; font-size:10px; top:5px; left:5px; z-index:1;">Aksiya!</span>` : "";
 
             grid.innerHTML += `
             <div class="item" style="position:relative;">
                 ${saleBadge}
                 <img src="${p.img}" class="img" onclick="openQuickView('${p.fbKey}')">
                 <p class="name">${p.name}</p>
-                ${priceHtml}
+                ${variantsHtml}
+                <p class="price" id="price-${p.fbKey}">${currentPrice.toLocaleString()} so'm</p>
                 <div class="stepper">
                     <button class="step-btn" onclick="changeQty('${p.fbKey}', -1)">-</button>
-                    <span class="qty">${cart[p.fbKey] ? cart[p.fbKey].qty : 0}</span>
+                    <span class="qty">${getCartQty(p.fbKey)}</span>
                     <button class="step-btn" onclick="changeQty('${p.fbKey}', 1)">+</button>
                 </div>
             </div>`;
@@ -92,7 +104,18 @@ function renderProducts(filter = 'all', list = null) {
     });
 }
 
-// 6. QUICK VIEW (Tezkor ko'rish)
+function selectVariant(pKey, vName, vPrice) {
+    selectedVariants[pKey] = { vName, vPrice };
+    renderProducts(); 
+}
+
+function getCartQty(pKey) {
+    let total = 0;
+    for (let id in cart) { if (cart[id].pKey === pKey) total += cart[id].qty; }
+    return total;
+}
+
+// 6. QUICK VIEW
 function openQuickView(key) {
     const p = products.find(x => x.fbKey === key);
     if(!p) return;
@@ -105,20 +128,15 @@ function openQuickView(key) {
 }
 function closeQuickView() { document.getElementById('quick-view-modal').style.display = 'none'; }
 
-// 7. BUYURTMA BERISH VA STATUSNI SAQLASH
+// 7. BUYURTMA BERISH
 function checkout() {
     if(Object.keys(cart).length === 0) return tg.showAlert("Savat bo'sh!");
     tg.showConfirm("Buyurtmani tasdiqlaysizmi?", (ok) => {
         if (ok) {
             const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 999;
             const comment = document.getElementById('order-comment').value || "Izoh yo'q";
-            
-            const orderData = {
-                userId, items: cart, status: "Kutilmoqda", time: Date.now(), comment
-            };
-            database.ref('orders').push(orderData).then(() => {
-                sendOrderToTelegram(orderData);
-            });
+            const orderData = { userId, items: cart, status: "Kutilmoqda", time: Date.now(), comment };
+            database.ref('orders').push(orderData).then(() => { sendOrderToTelegram(orderData); });
         }
     });
 }
@@ -133,38 +151,27 @@ function sendOrderToTelegram(order) {
     }
     message += `━━━━━━━━━━━━━━━━━━\n💰 **JAMI: ${total.toLocaleString()} so'm**\n✍️ **Izoh:** ${order.comment}\n`;
     
-    // 1. ADMINGA XABAR
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            chat_id: ADMIN_CHAT_ID,
-            text: message,
-            parse_mode: "Markdown",
-            reply_markup: {
-                inline_keyboard: [[{ text: "📞 Bog'lanish", url: `tg://user?id=${order.userId}` }]]
-            }
+            chat_id: ADMIN_CHAT_ID, text: message, parse_mode: "Markdown",
+            reply_markup: { inline_keyboard: [[{ text: "📞 Bog'lanish", url: `tg://user?id=${order.userId}` }]] }
         })
     });
 
-    // 2. MIJOZGA XABAR (Yangi qo'shilgan qism)
-    const customerMsg = `✅ **Buyurtmangiz qabul qilindi!**\n\nSizning buyurtmangiz muvaffaqiyatli ro'yxatga olindi. Tez orada operatorimiz siz bilan bog'lanadi.\n\n💰 Jami: ${total.toLocaleString()} so'm\n🆔 Buyurtma ID: #${order.time.toString().slice(-6)}`;
-    
+    const customerMsg = `✅ **Buyurtmangiz qabul qilindi!**\n\n💰 Jami: ${total.toLocaleString()} so'm\n🆔 ID: #${order.time.toString().slice(-6)}`;
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: order.userId,
-            text: customerMsg,
-            parse_mode: "Markdown"
-        })
+        body: JSON.stringify({ chat_id: order.userId, text: customerMsg, parse_mode: "Markdown" })
     }).then(() => {
         tg.showAlert("Buyurtmangiz yuborildi!");
         cart = {}; updateCartDisplay(); toggleCart(); renderProducts();
     });
 }
 
-// 8. STATUSNI KUZATISH (Mijoz uchun)
+// 8. STATUS KUZATISH
 function checkOrderStatus() {
     const uId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
     if(!uId) return;
@@ -181,28 +188,29 @@ function checkOrderStatus() {
     });
 }
 
-// 9. ADMIN: MAHSULOT TAHRIRLASH VA QO'SHISH
+// 9. ADMIN: MAHSULOTLAR
 function addNewProduct() {
     const name = document.getElementById('p-name').value;
     const price = parseInt(document.getElementById('p-price').value);
-    const salePrice = parseInt(document.getElementById('p-sale-price').value) || null;
     const cat = document.getElementById('p-cat-select').value;
     const desc = document.getElementById('p-desc').value;
+    const vInput = document.getElementById('p-variants').value; 
+
+    let variants = null;
+    if(vInput) {
+        variants = vInput.split(',').map(item => {
+            const [vName, vPrice] = item.split(':');
+            return { vName: vName.trim(), vPrice: vPrice ? parseInt(vPrice.trim()) : price };
+        });
+    }
 
     if(name && price && selectedImageBase64) {
         const data = {
             id: editingFbKey ? products.find(x => x.fbKey === editingFbKey).id : Date.now(),
-            name, 
-            price: salePrice || price,
-            oldPrice: salePrice ? price : null,
-            cat, desc, img: selectedImageBase64
+            name, price, cat, desc, variants, img: selectedImageBase64
         };
-
         const ref = editingFbKey ? database.ref('products/' + editingFbKey) : database.ref('products').push();
-        ref.set(data).then(() => {
-            resetAdminForm();
-            tg.showAlert("Saqlandi!");
-        });
+        ref.set(data).then(() => { resetAdminForm(); tg.showAlert("Saqlandi!"); });
     } else { tg.showAlert("Ma'lumot kam!"); }
 }
 
@@ -210,14 +218,13 @@ function editProduct(key) {
     const p = products.find(x => x.fbKey === key);
     editingFbKey = key;
     document.getElementById('p-name').value = p.name;
-    document.getElementById('p-price').value = p.oldPrice || p.price;
-    document.getElementById('p-sale-price').value = p.oldPrice ? p.price : "";
+    document.getElementById('p-price').value = p.price;
     document.getElementById('p-cat-select').value = p.cat;
     document.getElementById('p-desc').value = p.desc || "";
+    document.getElementById('p-variants').value = p.variants ? p.variants.map(v => `${v.vName}:${v.vPrice}`).join(', ') : "";
     selectedImageBase64 = p.img;
     const preview = document.getElementById('image-preview');
-    preview.style.display = "block";
-    preview.style.backgroundImage = `url(${p.img})`;
+    preview.style.display = "block"; preview.style.backgroundImage = `url(${p.img})`;
     document.getElementById('main-admin-btn').innerText = "Yangilash";
     showTab('p-tab', document.querySelector('.tab-link'));
 }
@@ -226,35 +233,30 @@ function resetAdminForm() {
     editingFbKey = null;
     document.getElementById('p-name').value = "";
     document.getElementById('p-price').value = "";
-    document.getElementById('p-sale-price').value = "";
     document.getElementById('p-desc').value = "";
+    document.getElementById('p-variants').value = "";
     document.getElementById('image-preview').style.display = "none";
     document.getElementById('main-admin-btn').innerText = "Onlayn saqlash";
     selectedImageBase64 = "";
 }
 
-// 10. ADMIN: BUYURTMALAR VA STATISTIKA
+// 10. ADMIN: BUYURTMALAR
 function initOrdersAdmin() {
     database.ref('orders').on('value', s => {
         const list = document.getElementById('admin-orders-list');
         list.innerHTML = "";
         const data = s.val();
-        if(!data) return list.innerHTML = "Buyurtmalar yo'q";
+        if(!data) return;
         Object.keys(data).reverse().forEach(key => {
             const o = data[key];
-            list.innerHTML += `
-            <div style="background:#fff; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
-                <b>Status: ${o.status}</b><br>
-                <button onclick="updateStatus('${key}', 'Yo\\'lda')" style="font-size:10px;">Yo'lda</button>
-                <button onclick="updateStatus('${key}', 'Yetkazildi')" style="font-size:10px;">Bitti</button>
-                <button onclick="deleteOrder('${key}')" style="font-size:10px; background:red; color:white;">🗑</button>
-            </div>`;
+            list.innerHTML += `<div class="admin-item"><b>ID: ${key.slice(-5)} - ${o.status}</b>
+            <button onclick="updateStatus('${key}', 'Yo\\'lda')">Yo'lda</button>
+            <button onclick="updateStatus('${key}', 'Yetkazildi')">Bitti</button></div>`;
         });
     });
 }
 
 function updateStatus(key, status) { database.ref('orders/'+key).update({status}); }
-function deleteOrder(key) { if(confirm("O'chirilsinmi?")) database.ref('orders/'+key).remove(); }
 
 function updateStats() {
     database.ref('orders').on('value', s => {
@@ -274,11 +276,17 @@ function updateStats() {
 }
 
 // --- YORDAMCHI FUNKSIYALAR ---
-function changeQty(key, delta) {
-    let p = products.find(x => x.fbKey === key);
-    if(!cart[key]) cart[key] = { name: p.name, price: p.price, qty: 0 };
-    cart[key].qty += delta;
-    if(cart[key].qty <= 0) delete cart[key];
+function changeQty(pKey, delta) {
+    const p = products.find(x => x.fbKey === pKey);
+    const variant = selectedVariants[pKey] || (p.variants ? p.variants[0] : { vName: "Standard", vPrice: p.price });
+    const cartId = `${pKey}_${variant.vName}`;
+
+    if(!cart[cartId]) {
+        cart[cartId] = { name: `${p.name} (${variant.vName})`, price: variant.vPrice, qty: 0, pKey: pKey };
+    }
+
+    cart[cartId].qty += delta;
+    if(cart[cartId].qty <= 0) delete cart[cartId];
     renderProducts(); 
     updateCartDisplay();
 }
@@ -288,10 +296,10 @@ function updateCartDisplay() {
     const list = document.getElementById('cart-items');
     if(!list) return;
     list.innerHTML = "";
-    for(let key in cart) {
-        count += cart[key].qty;
-        total += cart[key].qty * cart[key].price;
-        list.innerHTML += `<li><span>${cart[key].name} (x${cart[key].qty})</span> <span>${(cart[key].qty * cart[key].price).toLocaleString()} so'm</span></li>`;
+    for(let id in cart) {
+        count += cart[id].qty;
+        total += cart[id].qty * cart[id].price;
+        list.innerHTML += `<li><span>${cart[id].name} (x${cart[id].qty})</span> <span>${(cart[id].qty * cart[id].price).toLocaleString()} so'm</span></li>`;
     }
     document.getElementById('cart-count').innerText = count;
     document.getElementById('cart-total-info').innerText = total.toLocaleString() + " so'm";
@@ -321,25 +329,17 @@ function updateAdminLists() {
     if (!pList) return;
     pList.innerHTML = "";
     products.forEach(p => {
-        pList.innerHTML += `
-        <div class="admin-item" style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #eee;">
-            <span>${p.name}</span> 
-            <div>
-                <button onclick="editProduct('${p.fbKey}')" style="color:blue;">✏️</button>
-                <button onclick="deleteProduct('${p.fbKey}')" style="color:red;">🗑</button>
-            </div>
-        </div>`;
+        pList.innerHTML += `<div class="admin-item"><span>${p.name}</span> 
+        <button onclick="editProduct('${p.fbKey}')">✏️</button>
+        <button onclick="deleteProduct('${p.fbKey}')" style="color:red;">🗑</button></div>`;
     });
 }
 
 function deleteProduct(fbKey) { if(confirm("O'chirilsinmi?")) database.ref('products/' + fbKey).remove(); }
 function openAdmin() {
     let user = tg ? tg.initDataUnsafe.user : null;
-    if (user && user.id === ADMIN_TELEGRAM_ID) {
-        document.getElementById('admin-modal').style.display = 'block';
-    } else {
-        tg.showAlert("Faqat admin uchun! ⛔");
-    }
+    if (user && user.id === ADMIN_TELEGRAM_ID) { document.getElementById('admin-modal').style.display = 'block'; }
+    else { tg.showAlert("Faqat admin uchun! ⛔"); }
 }
 function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
 function toggleCart() {
