@@ -30,7 +30,7 @@ const firebaseConfig = {
 const BOT_TOKEN = "8597493525:AAH8Y8vsUB10zjJkJGcxDqiqp7eyWzDSb-k"; 
 const ADMIN_TELEGRAM_ID = 7577685281; 
 const ADMIN_CHAT_ID = "7577685281";   
-const GEMINI_API_KEY = "Sizning_API_Kalitingiz"; // AI ishlashi uchun buni qo'ying
+const GEMINI_API_KEY = "AIzaSyA4CmdyPPiGfEFqOmJVb1y8t9p9HxtLSTQ";
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
