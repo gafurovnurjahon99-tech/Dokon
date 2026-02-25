@@ -32,32 +32,32 @@
     </div>
 
     <div id="cart-widget" class="cart-widget" onclick="toggleCart()">
-        <span>🛒 <span id="cart-count">0</span> ta mahsulot</span>
+        <span>🛒 <span id="cart-count">0</span> ta</span>
         <span id="cart-total-info">0 so'm</span>
     </div>
 
     <div id="admin-modal" class="modal">
         <div class="modal-content admin-box">
             <div class="admin-header">
-                <h3>Boshqaruv Paneli</h3>
+                <h3>Boshqaruv</h3>
                 <button class="close-x" onclick="closeAdmin()">&times;</button>
             </div>
             <div class="admin-tabs">
                 <button onclick="showTab('p-tab', this)" class="tab-link active">Mahsulotlar</button>
                 <button onclick="showTab('c-tab', this)" class="tab-link">Kategoriyalar</button>
                 <button onclick="showTab('o-tab', this)" class="tab-link">Buyurtmalar</button>
-                <button onclick="showTab('s-tab', this)" class="tab-link">Statistika</button>
+                <button onclick="showTab('s-tab', this)" class="tab-link">AI & Stat</button>
             </div>
             
             <div id="p-tab" class="tab-body">
                 <div class="input-group">
-                    <input type="text" id="p-name" placeholder="Mahsulot nomi">
+                    <input type="text" id="p-name" placeholder="Nomi">
                     <input type="number" id="p-price" placeholder="Narxi">
-                    <input type="number" id="p-stock" placeholder="Sklad miqdori"> 
-                    <input type="text" id="p-variants" placeholder="Variantlar (S:100, M:120)">
+                    <input type="number" id="p-stock" placeholder="Sklad">
+                    <input type="text" id="p-variants" placeholder="S:100, M:120">
                     <select id="p-cat-select"></select>
                     <textarea id="p-desc" placeholder="Tavsif..."></textarea>
-                    <label class="file-label">🖼 Rasm yuklash <input type="file" id="p-image-input" accept="image/*" style="display:none;"></label>
+                    <label class="file-label">🖼 Rasm <input type="file" id="p-image-input" accept="image/*" style="display:none;"></label>
                     <div id="image-preview" class="preview-box"></div>
                     <button id="main-admin-btn" class="add-btn-main" onclick="addNewProduct()">Saqlash</button>
                 </div>
@@ -66,7 +66,7 @@
 
             <div id="c-tab" class="tab-body" style="display:none;">
                 <div class="input-group">
-                    <input type="text" id="new-cat-input" placeholder="Yangi kategoriya nomi">
+                    <input type="text" id="new-cat-input" placeholder="Yangi kategoriya">
                     <button class="add-btn-main" onclick="addNewCategory()">+ Qo'shish</button>
                 </div>
                 <div id="admin-cat-list" class="scroll-list"></div>
@@ -77,9 +77,15 @@
             </div>
 
             <div id="s-tab" class="tab-body" style="display:none;">
-                <div id="stats-grid">
-                    <div class="stat-card">Jami tushum: <h3 id="total-revenue">0 so'm</h3></div>
-                    <div class="stat-card">Buyurtmalar: <h3 id="total-orders-count">0</h3></div>
+                <div id="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="stat-card">Tushum: <h3 id="total-revenue">0</h3></div>
+                    <div class="stat-card">Soni: <h3 id="total-orders-count">0</h3></div>
+                </div>
+                <div class="ai-box">
+                    <h4>AI Admin 🧠</h4>
+                    <p id="ai-status">> Tayyor</p>
+                    <input type="text" id="ai-prompt" placeholder="Buyruq...">
+                    <button onclick="askAI()">OK</button>
                 </div>
             </div>
         </div>
@@ -88,7 +94,7 @@
     <div id="history-modal" class="modal">
         <div class="modal-content admin-box">
             <div class="admin-header">
-                <h3>📜 Buyurtmalar tarixi</h3>
+                <h3>📜 Tarix</h3>
                 <button class="close-x" onclick="toggleHistory()">&times;</button>
             </div>
             <div id="order-history-list" class="scroll-list"></div>
@@ -105,19 +111,8 @@
                 <button onclick="applyPromo()">OK</button>
             </div>
             <div class="total-summary">Jami: <span id="total-price-display">0</span> so'm</div>
-            <textarea id="order-comment" placeholder="Manzil va telefon..."></textarea>
+            <textarea id="order-comment" placeholder="Izoh..."></textarea>
             <button class="checkout-btn" onclick="checkout()">Tasdiqlash</button>
-        </div>
-    </div>
-
-    <div id="quick-view-modal" class="modal">
-        <div class="modal-content quick-box">
-            <button class="close-x" onclick="closeQuickView()">&times;</button>
-            <img id="qv-img" src="" style="width:100%; border-radius:15px; aspect-ratio:1;">
-            <h2 id="qv-name"></h2>
-            <p id="qv-price"></p>
-            <p id="qv-desc"></p>
-            <button id="qv-add-btn" class="add-btn-main">Savatga qo'shish</button>
         </div>
     </div>
 
